@@ -1,7 +1,6 @@
-// 
-// 
-const express = require('express');
+ const express = require('express');
 const { MongoClient } = require('mongodb');
+const  ObjectID = require('mongodb').ObjectId;
 require('dotenv').config();
 const cors = require('cors');
 
@@ -20,15 +19,49 @@ async function run() {
     await client.connect();
     console.log('database conneted');
     const database = client.db('tourismdb');
-    const packageCollection = database.collection('package');
+    const packageCollection = database.collection('packages');
+    const orderCollection = database.collection('orderplace');
 
     // Get servise API
-    app.get('/package',async(req,res)=>{
+    app.get('/packages',async(req,res)=>{
         const cursor = packageCollection.find({});
         const packages = await cursor.toArray();
-        res.send(packages)
-        console.log(packages);
+        res.send(packages);
     })
+
+        // GET Single Service
+        app.get('/packages/:id', async (req, res) => {
+          const id = req.params.id;
+          console.log('getting specific service', id);
+          const query = { _id: ObjectID(id) };
+          const package = await packageCollection.findOne(query);
+          res.json(package);
+      })
+    // POST API
+    app.post('/packages', async (req, res) => {
+      const package = req.body;
+      console.log('hit the post api', package);
+
+      const result = await packageCollection.insertOne(package);
+      console.log(result);
+      res.json(result)
+  });
+    // Add Orders API
+    app.post('/orderplace', async (req, res) => {
+          const order = req.body;
+          const result = await orderCollection.insertOne(order);
+          res.json(result);
+      })
+
+      // Delete ApI
+      app.delete('/packages/:id', async (req, res) => {
+        const id = req.params.id;
+        const query = { _id: ObjectID(id) };
+        const result = await packageCollection.deleteOne(query);
+        res.json(result);
+    })
+
+
   } 
   finally {
     // await client.close();
