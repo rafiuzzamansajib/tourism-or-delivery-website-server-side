@@ -37,6 +37,22 @@ async function run() {
           const package = await packageCollection.findOne(query);
           res.json(package);
       })
+      // Get orders Api
+      app.get('/orderplace',async(req,res)=>{
+        const cursor = orderCollection.find({});
+        const Orders = await cursor.toArray();
+        res.send(Orders);
+
+      })
+      // Get single order
+      app.get('/orderplace/:id',async(req,res)=>{
+        const id = req.params.id;
+        console.log('getting specific orders', id);
+        const query = { _id: ObjectID(id) };
+        const order = await orderCollection.findOne(query);
+        res.json(order);
+
+      })
     // POST API
     app.post('/packages', async (req, res) => {
       const package = req.body;
@@ -54,10 +70,10 @@ async function run() {
       })
 
       // Delete ApI
-      app.delete('/packages/:id', async (req, res) => {
+      app.delete('/orderplace/:id', async (req, res) => {
         const id = req.params.id;
         const query = { _id: ObjectID(id) };
-        const result = await packageCollection.deleteOne(query);
+        const result = await orderCollection.deleteOne(query);
         res.json(result);
     })
 
